@@ -2,7 +2,7 @@
 
 Based on Code Kata on CodeWars.com:
 
-https://www.codewars.com/kata/5a3357ae8058425bde002674/train/cpp
+https://www.codewars.com/kata/5a3357ae8058425bde002674
 
 In this kata, your task is to implement what I call Iterative Rotation Cipher (IRC). To complete the task, you will create an object with two methods, encode and decode. (For non-JavaScript versions, you only need to write the two functions without the enclosing dict)
 Input
