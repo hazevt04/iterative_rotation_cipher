@@ -6,6 +6,8 @@
 #include <sstream>
 #include <algorithm>
 #include <functional>
+#include <vector>
+#include <tuple>
 
 inline std::string right_circ_shift( std::string str, int num_places ) {
    if ( ( num_places % str.size() ) == 0 ) {
@@ -49,13 +51,20 @@ int main( int argc, char** argv ) {
 
    try {
  
-      int num_iterations = 10;
-      std::string str = "If you wish to make an apple pie from scratch, you must first invent the universe.";
+      std::vector<std::pair<int, std::string>> inputs = {
+         // {10, "If you wish to make an apple pie from scratch, you must first invent the universe."},
+         // {14, "True evil is a mundane bureaucracy."},
+         // {22, "There is nothing more atrociously cruel than an adored child."},
+         {36, "As I was going up the stair\nI met a man who wasn\'t there!\nHe wasn\'t there again today,\nOh how I wish he\'d go away!"}
+         // {29, "I avoid that bleak first hour of the working day during which my still sluggish senses and body make every chore a penance.\nI find that in arriving later, the work which I do perform is of a much higher quality."}
+      };
 
-      std::cout << "String is '" << str << "'\n"; 
-
-      std::string encoded_str = encode( num_iterations, str );
-      std::cout << "Encoded String is " << encoded_str << "\n"; 
+      for ( auto& input: inputs ) {
+         std::cout << "Number of Iterations is " << input.first << "\n"; 
+         std::cout << "String is '" << input.second << "'\n"; 
+         std::string encoded_str = encode( input.first, input.second );
+         std::cout << "Encoded String is " << encoded_str << "\n"; 
+      }
       return EXIT_SUCCESS;
    
    } catch( std::exception& ex ) {
