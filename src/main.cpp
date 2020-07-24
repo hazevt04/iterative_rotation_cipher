@@ -37,6 +37,7 @@ std::string encode( int num_iterations, std::string str ) {
       }
       str = result_str;
    } // end of for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
+   str = std::to_string( num_iterations ) + str;
    return str;
 }
 
