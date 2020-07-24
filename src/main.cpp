@@ -9,6 +9,10 @@
 #include <vector>
 #include <tuple>
 
+inline bool is_char_allowed( unsigned char c ) {
+   return ( c == 10 || !std::isspace(c) );
+} 
+
 inline std::string right_circ_shift( std::string str, int num_places ) {
    if ( ( num_places % str.size() ) == 0 ) {
       return str;
@@ -21,24 +25,39 @@ inline std::string right_circ_shift( std::string str, int num_places ) {
 std::string encode( int num_iterations, std::string str ) {
    using str_size_type = std::string::size_type;
    for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
-      std::string nospaces;
-      std::copy_if( str.begin(), str.end(), std::back_inserter( nospaces ), []( unsigned char c ) { return !std::isspace(c); } );
+      std::string allowedchars;
+      std::cout << "Iteration " << iteration_num << ": str is\n'" << str << "'\n"; 
+      std::copy_if( str.begin(), str.end(), std::back_inserter( allowedchars ), []( unsigned char c ) { return is_char_allowed(c); } );
       
-      std::string shifted_str = right_circ_shift( nospaces, num_iterations );
+      std::string shifted_str = right_circ_shift( allowedchars, num_iterations );
+      std::cout << "Iteration " << iteration_num << ": shifted_str is\n'" << str << "'\n"; 
       
       for ( str_size_type index = 0, s_index = 0; index != str.size(); ++index ) {
-         if ( !std::isspace( str.at( index ) ) ) {
+         if ( is_char_allowed( str.at( index ) ) ) {
             str.at( index ) = shifted_str.at( s_index++ );
          }
       }
-      auto iss = std::istringstream( str );
-      std::string sub_str = "";
+      std::cout << "Iteration " << iteration_num << ": after putting the shifted chars back in str is\n'" << str << "'\n"; 
+      
+      // auto iss = std::istringstream( str );
+      // std::string sub_str = "";
+      // std::string result_str = "";
+      // while ( iss >> sub_str ) {
+      //    result_str += " " + right_circ_shift( sub_str, num_iterations );
+      // }
+      // str = result_str;
+
+      str_size_type pos = 0;
       std::string result_str = "";
-      while ( iss >> sub_str ) {
-         result_str += " " + right_circ_shift( sub_str, num_iterations ); 
+      while ( (pos = str.find(" ")) != std::string::npos ) {
+         result_str += str.substr( 0, pos );
+         std::cout << "Iteration " << iteration_num << ": pos is " << pos << " result_str is\n'" << result_str << "'\n"; 
+         str.erase( 0, pos + 1 );
+         std::cout << "Iteration " << iteration_num << ": pos is " << pos << " str is\n'" << str << "'\n"; 
       }
       str = result_str;
    } // end of for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
+
    str = std::to_string( num_iterations ) + str;
    return str;
 }
@@ -61,9 +80,9 @@ int main( int argc, char** argv ) {
 
       for ( auto& input: inputs ) {
          std::cout << "Number of Iterations is " << input.first << "\n"; 
-         std::cout << "String is '" << input.second << "'\n"; 
+         std::cout << "String is\n'" << input.second << "'\n"; 
          std::string encoded_str = encode( input.first, input.second );
-         std::cout << "Encoded String is " << encoded_str << "\n"; 
+         std::cout << "Encoded String is\n'" << encoded_str << "'\n"; 
       }
       return EXIT_SUCCESS;
    
