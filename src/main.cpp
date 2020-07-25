@@ -55,6 +55,7 @@ std::string encode( int num_iterations, std::string str ) {
    } // end of for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
 
    str = std::to_string( num_iterations ) + " " + str;
+   str = str.substr( 0, str.size() - 1 );
    return str;
 }
 
@@ -65,7 +66,6 @@ std::string decode(std::string str) {
 int main( int argc, char** argv ) {
 
    try {
- 
       std::vector<std::pair<int, std::string>> inputs = {
          {10, "If you wish to make an apple pie from scratch, you must first invent the universe."},
          {14, "True evil is a mundane bureaucracy."},
