@@ -10,6 +10,7 @@
 #include <tuple>
 #include <random>
 
+using str_size_type = std::string::size_type;
 
 inline bool is_char_allowed( unsigned char c ) {
    return ( ( c == 10 ) || !std::isspace(c) );
@@ -33,21 +34,30 @@ inline std::string right_circ_shift( std::string str, int num_places ) {
    }
 }
 
+inline std::string extract_allowed_chars( std::string str ) {
+   std::string allowedchars;
+   std::copy_if( str.begin(), str.end(), std::back_inserter( allowedchars ), 
+         []( unsigned char c ) { return is_char_allowed(c); } );
+   return allowedchars;
+}
+
+inline std::string put_shifted_chars_back( std::string str, std::string shifted_chars ) {
+   for ( str_size_type index = 0, s_index = 0; index != str.size(); ++index ) {
+      if ( is_char_allowed( str.at( index ) ) ) {
+         str.at( index ) = shifted_chars.at( s_index++ );
+      }
+   }
+   return str;
+}
+
 std::string encode( int num_iterations, std::string str ) {
-   using str_size_type = std::string::size_type;
    for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
-      std::string allowedchars;
-      std::copy_if( str.begin(), str.end(), std::back_inserter( allowedchars ), 
-            []( unsigned char c ) { return is_char_allowed(c); } );
-      
+      std::string allowedchars = extract_allowed_chars( str );
       std::string shifted_str = right_circ_shift( allowedchars, num_iterations );
       
-      for ( str_size_type index = 0, s_index = 0; index != str.size(); ++index ) {
-         if ( is_char_allowed( str.at( index ) ) ) {
-            str.at( index ) = shifted_str.at( s_index++ );
-         }
-      }
+      str = put_shifted_chars_back( str, shifted_str );
       str += " "; 
+
       std::string result_str = "";
       std::string delim = " ";
 
@@ -67,8 +77,9 @@ std::string encode( int num_iterations, std::string str ) {
    return std::to_string( num_iterations ) + " " + str.substr( 0, str.size() - 1 );
 }
 
+
+
 std::string decode( std::string str ) {
-   using str_size_type = std::string::size_type;
    std::string delim = " ";
    char* end_ptr = nullptr;
    int num_iterations = std::strtoul( str.c_str(), &end_ptr, 10 );
@@ -88,16 +99,10 @@ std::string decode( std::string str ) {
       }
       str = result_str;
       
-      std::string allowedchars;
-      std::copy_if( str.begin(), str.end(), std::back_inserter( allowedchars ), 
-         []( unsigned char c ) { return is_char_allowed(c); } );
-      
+      std::string allowedchars = extract_allowed_chars( str );
       std::string shifted_str = left_circ_shift( allowedchars, num_iterations );
-      for ( str_size_type index = 0, s_index = 0; index != str.size(); ++index ) {
-         if ( is_char_allowed( str.at( index ) ) ) {
-            str.at( index ) = shifted_str.at( s_index++ );
-         }
-      }
+      
+      str = put_shifted_chars_back( str, shifted_str );
    } // for( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
     
    return str.substr( 0, str.size() - 1 );
