@@ -8,6 +8,8 @@
 #include <functional>
 #include <vector>
 #include <tuple>
+#include <random>
+
 
 inline bool is_char_allowed( unsigned char c ) {
    return ( ( c == 10 ) || !std::isspace(c) );
@@ -35,7 +37,8 @@ std::string encode( int num_iterations, std::string str ) {
    using str_size_type = std::string::size_type;
    for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
       std::string allowedchars;
-      std::copy_if( str.begin(), str.end(), std::back_inserter( allowedchars ), []( unsigned char c ) { return is_char_allowed(c); } );
+      std::copy_if( str.begin(), str.end(), std::back_inserter( allowedchars ), 
+            []( unsigned char c ) { return is_char_allowed(c); } );
       
       std::string shifted_str = right_circ_shift( allowedchars, num_iterations );
       
@@ -48,6 +51,7 @@ std::string encode( int num_iterations, std::string str ) {
       std::string result_str = "";
       std::string delim = " ";
 
+      int d_index = 0;
       auto start = 0U;
       auto end = str.find(delim);
       while ( (end != std::string::npos) && (end != start) ) {
@@ -85,7 +89,8 @@ std::string decode( std::string str ) {
       str = result_str;
       
       std::string allowedchars;
-      std::copy_if( str.begin(), str.end(), std::back_inserter( allowedchars ), []( unsigned char c ) { return is_char_allowed(c); } );
+      std::copy_if( str.begin(), str.end(), std::back_inserter( allowedchars ), 
+         []( unsigned char c ) { return is_char_allowed(c); } );
       
       std::string shifted_str = left_circ_shift( allowedchars, num_iterations );
       for ( str_size_type index = 0, s_index = 0; index != str.size(); ++index ) {
@@ -93,21 +98,48 @@ std::string decode( std::string str ) {
             str.at( index ) = shifted_str.at( s_index++ );
          }
       }
-      
    } // for( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
     
    return str.substr( 0, str.size() - 1 );
 }
 
+constexpr int MIN_ALLOWED_CHAR = 33;
+constexpr int MAX_ALLOWED_CHAR = 127;
+
+inline std::string gen_random_string( int num_spaces, const int& num_chars ) {
+   const int range_from = MIN_ALLOWED_CHAR;
+   const int range_to = MAX_ALLOWED_CHAR;
+   std::random_device rand_dev;
+   std::mt19937 generator(rand_dev());
+   std::uniform_int_distribution<int> distr(range_from, range_to);
+   std::uniform_int_distribution<int> space_index_distr(1, num_chars);
+
+   std::string random_string;
+   for( int index = 0; index < num_chars; index++ ) {
+      random_string += static_cast<char>(distr(generator));
+   }
+   for( int index = 0; index < num_spaces; index++ ) {
+      random_string.insert( space_index_distr(generator), " " );
+   } 
+   std::cout << "Random string is '" << random_string << "'\n"; 
+   return random_string;
+}
+
+
 int main( int argc, char** argv ) {
 
    try {
+      int num_rand_spaces = 5;
+      int num_rand_chars = 36;
+      std::string random_string = gen_random_string( num_rand_spaces, num_rand_chars );
+
       std::vector<std::pair<int, std::string>> inputs = {
          {10, "If you wish to make an apple pie from scratch, you must first invent the universe."},
          {14, "True evil is a mundane bureaucracy."},
          {22, "There is nothing more atrociously cruel than an adored child."},
          {36, "As I was going up the stair\nI met a man who wasn\'t there!\nHe wasn\'t there again today,\nOh how I wish he\'d go away!"},
-         {29, "I avoid that bleak first hour of the working day during which my still sluggish senses and body make every chore a penance.\nI find that in arriving later, the work which I do perform is of a much higher quality."}
+         {29, "I avoid that bleak first hour of the working day during which my still sluggish senses and body make every chore a penance.\nI find that in arriving later, the work which I do perform is of a much higher quality."},
+         {12, random_string}
       };
 
       std::vector<std::string> encoded_inputs;
