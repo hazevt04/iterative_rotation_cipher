@@ -84,7 +84,7 @@ std::string encode( int num_iterations, std::string str ) {
          end = str.find( delim, start );
          std::cout << __func__ << "(): iteration " << iteration_num << ": start is " << start << "\n"; 
          std::cout << __func__ << "(): iteration " << iteration_num << ": end is " << end << "\n"; 
-         if ( ( end == start ) && ( start != str.size() ) ) {
+         while ( ( end == start ) && ( start != str.size() ) ) {
             result_str += " ";
             std::cout << __func__ << "(): iteration " << iteration_num << ": end == start (" << end << " == " << start << ") Need to add another space\n"; 
             std::cout << __func__ << "(): iteration " << iteration_num << ": since end == start, adding space to result_str. New result_str is '" << result_str << "'\n"; 
@@ -118,7 +118,7 @@ std::string decode( std::string str ) {
          result_str += left_circ_shift( str_substr, num_iterations ) + " ";
          start = end + delim.length();
          end = str.find( delim, start );
-         if ( end == start ) {
+         while ( ( end == start ) && ( start != str.size() ) ) {
             result_str += " ";
             ++start; 
             end = str.find( delim, start );
@@ -167,12 +167,14 @@ int main( int argc, char** argv ) {
 
       std::vector<std::pair<int, std::string>> inputs = {
          {2, "Double  Spaces"},
-         {10, "If you wish to make an apple pie from scratch, you must first invent the universe."},
-         {14, "True evil is a mundane bureaucracy."},
-         {22, "There is nothing more atrociously cruel than an adored child."},
-         {36, "As I was going up the stair\nI met a man who wasn\'t there!\nHe wasn\'t there again today,\nOh how I wish he\'d go away!"},
-         {29, "I avoid that bleak first hour of the working day during which my still sluggish senses and body make every chore a penance.\nI find that in arriving later, the work which I do perform is of a much higher quality."},
-         {12, random_string}
+         {2, "Triple   Spaces"},
+         {2, "Quad    Spaces"}
+         // {10, "If you wish to make an apple pie from scratch, you must first invent the universe."},
+         // {14, "True evil is a mundane bureaucracy."},
+         // {22, "There is nothing more atrociously cruel than an adored child."},
+         // {36, "As I was going up the stair\nI met a man who wasn\'t there!\nHe wasn\'t there again today,\nOh how I wish he\'d go away!"},
+         // {29, "I avoid that bleak first hour of the working day during which my still sluggish senses and body make every chore a penance.\nI find that in arriving later, the work which I do perform is of a much higher quality."},
+         // {12, random_string}
       };
 
       std::vector<std::string> encoded_inputs;
