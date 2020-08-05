@@ -96,12 +96,18 @@ inline std::string left_rotate_words( std::string str, const int& num_iterations
    return result_str.substr( 0, result_str.size() - 1 );
 }
 
+inline void extract_decode_str( std::string& str, int& num_iterations ) {
+   char* end_ptr = nullptr;
+   num_iterations = std::strtoul( str.c_str(), &end_ptr, 10 );
+   str = str.substr( str.find(" ") + 1 );
+   str += " "; 
+}
+
 
 std::string encode( int num_iterations, std::string str ) {
    for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
       std::string allowedchars = extract_allowed_chars( str );
       std::string shifted_str = right_circ_shift( allowedchars, num_iterations );
-      
       str = put_shifted_chars_back( str, shifted_str );
       str = right_rotate_words( str, num_iterations );
    } // end of for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
@@ -111,18 +117,12 @@ std::string encode( int num_iterations, std::string str ) {
 
 
 std::string decode( std::string str ) {
-   std::string delim = " ";
-   char* end_ptr = nullptr;
-   int num_iterations = std::strtoul( str.c_str(), &end_ptr, 10 );
-
-   str = str.substr( str.find(" ") + 1 );
-   str += " "; 
-
+   int num_iterations = 0;
+   extract_decode_str( str, num_iterations );
    for( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
       str = left_rotate_words( str, num_iterations );
       std::string allowedchars = extract_allowed_chars( str );
       std::string shifted_str = left_circ_shift( allowedchars, num_iterations );
-      
       str = put_shifted_chars_back( str, shifted_str );
    } // for( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
     
