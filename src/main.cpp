@@ -10,27 +10,28 @@
 
 using str_size_type = std::string::size_type;
 
+enum direction {Left, Right};
+
 inline bool is_char_allowed( unsigned char c ) {
    return ( ( c == 10 ) || !std::isspace(c) );
 } 
 
-inline std::string left_circ_shift( std::string str, int num_places ) {
+
+inline std::string circ_shift( std::string str, const int& num_places, const direction& dir ) {
    if ( ( num_places % str.size() ) == 0 ) {
       return str;
    } else {
-      return str.substr( ( num_places % str.size() ), ( str.size() - ( num_places % str.size() ) ) ) + 
-         str.substr( 0, ( num_places % str.size() ) );
+      if ( dir == Left ) {
+         return str.substr( ( num_places % str.size() ), ( str.size() - ( num_places % str.size() ) ) ) + 
+            str.substr( 0, ( num_places % str.size() ) );
+      } 
+      if ( dir == Right ) {
+         return str.substr( ( str.size() - ( num_places % str.size()) ), num_places ) + 
+            str.substr( 0, ( str.size() - ( num_places % str.size()) ) );
+      }
    }
 }
 
-inline std::string right_circ_shift( std::string str, int num_places ) {
-   if ( ( num_places % str.size() ) == 0 ) {
-      return str;
-   } else {
-      return str.substr( ( str.size() - ( num_places % str.size()) ), num_places ) + 
-         str.substr( 0, ( str.size() - ( num_places % str.size()) ) );
-   }
-}
 
 inline std::string extract_allowed_chars( std::string str ) {
    std::string allowedchars;
@@ -38,6 +39,7 @@ inline std::string extract_allowed_chars( std::string str ) {
          []( unsigned char c ) { return is_char_allowed(c); } );
    return allowedchars;
 }
+
 
 inline std::string put_shifted_chars_back( std::string str, std::string shifted_chars ) {
    for ( str_size_type index = 0, s_index = 0; index != str.size(); ++index ) {
@@ -48,7 +50,8 @@ inline std::string put_shifted_chars_back( std::string str, std::string shifted_
    return str;
 }
 
-inline std::string right_rotate_words( std::string str, const int& num_iterations ) {
+
+inline std::string rotate_words( std::string str, const int& num_iterations, const direction& dir ) {
    std::string result_str = "";
    std::string delim = " ";
 
@@ -58,7 +61,7 @@ inline std::string right_rotate_words( std::string str, const int& num_iteration
    str += " ";
    while ( (end != std::string::npos) ) {
       std::string str_substr = str.substr( start, end - start );
-      result_str += right_circ_shift( str_substr, num_iterations ) + " ";
+      result_str += circ_shift( str_substr, num_iterations, dir ) + " ";
 
       start = end + delim.length();
       end = str.find( delim, start );
@@ -72,29 +75,6 @@ inline std::string right_rotate_words( std::string str, const int& num_iteration
    return result_str.substr( 0, result_str.size() - 1 );
 }
 
-inline std::string left_rotate_words( std::string str, const int& num_iterations ) {
-   std::string result_str = "";
-   std::string delim = " ";
-
-   int d_index = 0;
-   auto start = 0U;
-   auto end = str.find(delim);
-   str += " ";
-   while ( (end != std::string::npos) ) {
-      std::string str_substr = str.substr( start, end - start );
-      result_str += left_circ_shift( str_substr, num_iterations ) + " ";
-
-      start = end + delim.length();
-      end = str.find( delim, start );
-      while ( ( end == start ) && ( start != str.size() ) ) {
-         result_str += " ";
-         ++start; 
-         end = str.find( delim, start );
-      }
-   }
-
-   return result_str.substr( 0, result_str.size() - 1 );
-}
 
 inline void extract_decode_str( std::string& str, int& num_iterations ) {
    char* end_ptr = nullptr;
@@ -105,11 +85,12 @@ inline void extract_decode_str( std::string& str, int& num_iterations ) {
 
 
 std::string encode( int num_iterations, std::string str ) {
+   direction dir = Right;
    for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
       std::string allowedchars = extract_allowed_chars( str );
-      std::string shifted_str = right_circ_shift( allowedchars, num_iterations );
+      std::string shifted_str = circ_shift( allowedchars, num_iterations, dir );
       str = put_shifted_chars_back( str, shifted_str );
-      str = right_rotate_words( str, num_iterations );
+      str = rotate_words( str, num_iterations, dir );
    } // end of for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
 
    return std::to_string( num_iterations ) + " " + str;
@@ -118,11 +99,12 @@ std::string encode( int num_iterations, std::string str ) {
 
 std::string decode( std::string str ) {
    int num_iterations = 0;
+   direction dir = Left;
    extract_decode_str( str, num_iterations );
    for( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
-      str = left_rotate_words( str, num_iterations );
+      str = rotate_words( str, num_iterations, dir );
       std::string allowedchars = extract_allowed_chars( str );
-      std::string shifted_str = left_circ_shift( allowedchars, num_iterations );
+      std::string shifted_str = circ_shift( allowedchars, num_iterations, dir );
       str = put_shifted_chars_back( str, shifted_str );
    } // for( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
     
