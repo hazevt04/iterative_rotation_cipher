@@ -45,18 +45,25 @@ inline std::string put_shifted_chars_back( std::string str, std::string shifted_
    for ( str_size_type index = 0, s_index = 0; index != str.size(); ++index ) {
       if ( is_char_allowed( str.at( index ) ) ) {
          str.at( index ) = shifted_chars.at( s_index++ );
-      }
+      } 
    }
    return str;
 }
 
+inline std::string trim( std::string str ) {
+   
+}
+
 std::string encode( int num_iterations, std::string str ) {
    for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
+      std::cout << __func__ << "(): iteration " << iteration_num << ": str is '" << str << "'\n"; 
       std::string allowedchars = extract_allowed_chars( str );
+      std::cout << __func__ << "(): iteration " << iteration_num << ": allowedchars is '" << allowedchars << "'\n"; 
       std::string shifted_str = right_circ_shift( allowedchars, num_iterations );
+      std::cout << __func__ << "(): iteration " << iteration_num << ": shifted_str is '" << shifted_str << "'\n"; 
       
       str = put_shifted_chars_back( str, shifted_str );
-      str += " "; 
+      std::cout << __func__ << "(): iteration " << iteration_num << ": str after putting shifted chars back is '" << str << "'\n"; 
 
       std::string result_str = "";
       std::string delim = " ";
@@ -64,20 +71,35 @@ std::string encode( int num_iterations, std::string str ) {
       int d_index = 0;
       auto start = 0U;
       auto end = str.find(delim);
-      while ( (end != std::string::npos) && (end != start) ) {
+      std::cout << __func__ << "(): iteration " << iteration_num << ": start is " << start << "\n"; 
+      std::cout << __func__ << "(): iteration " << iteration_num << ": end is " << end << "\n"; 
+      str += " ";
+      while ( (end != std::string::npos) ) {
          std::string str_substr = str.substr( start, end - start );
+         std::cout << __func__ << "(): iteration " << iteration_num << ": str_substr is '" << str_substr << "'\n"; 
          result_str += right_circ_shift( str_substr, num_iterations ) + " ";
+         std::cout << __func__ << "(): iteration " << iteration_num << ": result_str is '" << result_str << "'\n"; 
+
          start = end + delim.length();
          end = str.find( delim, start );
+         std::cout << __func__ << "(): iteration " << iteration_num << ": start is " << start << "\n"; 
+         std::cout << __func__ << "(): iteration " << iteration_num << ": end is " << end << "\n"; 
+         if ( ( end == start ) && ( start != str.size() ) ) {
+            result_str += " ";
+            std::cout << __func__ << "(): iteration " << iteration_num << ": end == start (" << end << " == " << start << ") Need to add another space\n"; 
+            std::cout << __func__ << "(): iteration " << iteration_num << ": since end == start, adding space to result_str. New result_str is '" << result_str << "'\n"; 
+            ++start; 
+            end = str.find( delim, start );
+            std::cout << __func__ << "(): iteration " << iteration_num << ": since end == start, moving start to " << start << "\n"; 
+            std::cout << __func__ << "(): iteration " << iteration_num << ": since end == start, new end is " << end << "\n"; 
+         }
       }
-
-      str = result_str;
+      std::cout << __func__ << "(): iteration " << iteration_num << ": last result_str is '" << result_str << "' for this iteration\n"; 
+      str = result_str.substr( 0, result_str.size() - 1 );
    } // end of for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
 
-   return std::to_string( num_iterations ) + " " + str.substr( 0, str.size() - 1 );
+   return std::to_string( num_iterations ) + " " + str;
 }
-
-
 
 std::string decode( std::string str ) {
    std::string delim = " ";
@@ -96,6 +118,11 @@ std::string decode( std::string str ) {
          result_str += left_circ_shift( str_substr, num_iterations ) + " ";
          start = end + delim.length();
          end = str.find( delim, start );
+         if ( end == start ) {
+            result_str += " ";
+            ++start; 
+            end = str.find( delim, start );
+         }
       }
       str = result_str;
       
@@ -139,6 +166,7 @@ int main( int argc, char** argv ) {
       std::string random_string = gen_random_string( num_rand_spaces, num_rand_chars );
 
       std::vector<std::pair<int, std::string>> inputs = {
+         {2, "Double  Spaces"},
          {10, "If you wish to make an apple pie from scratch, you must first invent the universe."},
          {14, "True evil is a mundane bureaucracy."},
          {22, "There is nothing more atrociously cruel than an adored child."},
