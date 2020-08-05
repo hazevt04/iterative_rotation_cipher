@@ -1,9 +1,7 @@
 // C++ File for main
 
 #include <iostream>
-#include <iomanip>
 #include <string>
-#include <sstream>
 #include <algorithm>
 #include <functional>
 #include <vector>
@@ -50,9 +48,54 @@ inline std::string put_shifted_chars_back( std::string str, std::string shifted_
    return str;
 }
 
-inline std::string trim( std::string str ) {
-   
+inline std::string right_rotate_words( std::string str, const int& num_iterations ) {
+   std::string result_str = "";
+   std::string delim = " ";
+
+   int d_index = 0;
+   auto start = 0U;
+   auto end = str.find(delim);
+   str += " ";
+   while ( (end != std::string::npos) ) {
+      std::string str_substr = str.substr( start, end - start );
+      result_str += right_circ_shift( str_substr, num_iterations ) + " ";
+
+      start = end + delim.length();
+      end = str.find( delim, start );
+      while ( ( end == start ) && ( start != str.size() ) ) {
+         result_str += " ";
+         ++start; 
+         end = str.find( delim, start );
+      }
+   }
+
+   return result_str.substr( 0, result_str.size() - 1 );
 }
+
+inline std::string left_rotate_words( std::string str, const int& num_iterations ) {
+   std::string result_str = "";
+   std::string delim = " ";
+
+   int d_index = 0;
+   auto start = 0U;
+   auto end = str.find(delim);
+   str += " ";
+   while ( (end != std::string::npos) ) {
+      std::string str_substr = str.substr( start, end - start );
+      result_str += left_circ_shift( str_substr, num_iterations ) + " ";
+
+      start = end + delim.length();
+      end = str.find( delim, start );
+      while ( ( end == start ) && ( start != str.size() ) ) {
+         result_str += " ";
+         ++start; 
+         end = str.find( delim, start );
+      }
+   }
+
+   return result_str.substr( 0, result_str.size() - 1 );
+}
+
 
 std::string encode( int num_iterations, std::string str ) {
    for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
@@ -60,31 +103,12 @@ std::string encode( int num_iterations, std::string str ) {
       std::string shifted_str = right_circ_shift( allowedchars, num_iterations );
       
       str = put_shifted_chars_back( str, shifted_str );
-
-      std::string result_str = "";
-      std::string delim = " ";
-
-      int d_index = 0;
-      auto start = 0U;
-      auto end = str.find(delim);
-      str += " ";
-      while ( (end != std::string::npos) ) {
-         std::string str_substr = str.substr( start, end - start );
-         result_str += right_circ_shift( str_substr, num_iterations ) + " ";
-
-         start = end + delim.length();
-         end = str.find( delim, start );
-         while ( ( end == start ) && ( start != str.size() ) ) {
-            result_str += " ";
-            ++start; 
-            end = str.find( delim, start );
-         }
-      }
-      str = result_str.substr( 0, result_str.size() - 1 );
+      str = right_rotate_words( str, num_iterations );
    } // end of for ( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
 
    return std::to_string( num_iterations ) + " " + str;
 }
+
 
 std::string decode( std::string str ) {
    std::string delim = " ";
@@ -95,22 +119,7 @@ std::string decode( std::string str ) {
    str += " "; 
 
    for( int iteration_num = 0; iteration_num < num_iterations; ++iteration_num ) {
-      std::string result_str = "";
-      auto start = 0U;
-      auto end = str.find(delim);
-      while ( ( end != std::string::npos ) && ( end != start ) ) {
-         std::string str_substr = str.substr( start, end - start );
-         result_str += left_circ_shift( str_substr, num_iterations ) + " ";
-         start = end + delim.length();
-         end = str.find( delim, start );
-         while ( ( end == start ) && ( start != str.size() ) ) {
-            result_str += " ";
-            ++start; 
-            end = str.find( delim, start );
-         }
-      }
-      str = result_str;
-      
+      str = left_rotate_words( str, num_iterations );
       std::string allowedchars = extract_allowed_chars( str );
       std::string shifted_str = left_circ_shift( allowedchars, num_iterations );
       
